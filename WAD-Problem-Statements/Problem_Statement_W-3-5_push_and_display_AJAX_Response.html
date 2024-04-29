@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users</title>
+    <link rel="stylesheet" href="./bootstrap-4.0.0-dist/css/bootstrap.min.css" />
+  </head>
+
+  <style>
+    #custom-table th {
+      background-color: black;
+      color: white;
+    }
+
+    tr td {
+      max-width: 200px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .table-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 table-container mt-5"> 
+          <table id='custom-table' class='table table-striped table-bordered'>
+            <thead>
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>Date of Birth</th>
+                <th>Gender</th>
+              </tr>
+            </thead>
+            <tbody>
+      
+            </tbody>
+          </table>
+        </div>
+      </div><input type="button" value="Delete All records" class="btn btn-danger" onclick="deleteRecords()">
+    </div>
+
+    <script>
+      window.onload = function() {
+        const usersData = JSON.parse(localStorage.getItem("users"));
+        var table = "";
+        usersData.forEach((user) => {
+          table += "<tr>";
+          table += `<td>${user.fname}</td>`;
+          table += `<td>${user.lname}</td>`;
+          table += `<td>${user.uname}</td>`;
+          table += `<td>${user.email}</td>`;
+          table += `<td>${user.dob}</td>`;
+          table += `<td>${user.gender}</td>`;
+          table += "</tr>";
+        });
+        document.querySelector("#custom-table tbody").innerHTML = table;
+      };
+
+      const deleteRecords = () => {
+          if(window.confirm('Do you really want to delete all the records ?')){
+            localStorage.removeItem('users');
+            alert('All Records Deleted successfully');
+          }
+      }
+    </script>
+  </body>
+</html>
