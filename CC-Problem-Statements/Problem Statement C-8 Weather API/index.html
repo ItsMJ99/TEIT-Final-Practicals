@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+
+    <style>
+        h1 { 
+            text-align: center;
+            margin-top: 5rem;
+            margin-bottom: 2rem;
+        }
+        .row{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        form{
+            text-align: center;
+            padding: 2rem;
+            border: 2px solid black;
+            border-radius: 16px;
+        }
+
+        label {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <div class="row">
+            <form action="" onsubmit="sendLatLong(event)">
+                <label for="">Latitude</label><br><br>
+                <input type="number" name="latitude" id="latitude" ><br><br><br>
+
+                <label for="">Longitude</label><br><br>
+                <input type="number" name="longitude" id="longitude" ><br><br><br>
+
+                <input type="reset" value="Reset">
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+        <div class="display" id="display">
+
+        </div>
+    </div>
+
+    <script>
+        const sendLatLong = (e) => {
+            e.preventDefault();
+            const lat=document.getElementById("latitude").value;
+            const long=document.getElementById("longitude").value;
+
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&hourly=temperature_2m`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.error === true){
+                    alert(data.reason);
+                    //just in case if we want to display the error on new page
+                    //localStorage.removeItem("reason");
+                    //localStorage.setItem("reason",data.reason);
+                    //window.location.href='./error.html';
+                    return;
+                } 
+                console.log(data);
+                
+                var ul = '<ol>';
+                    ul+=`<li>Latitude : ${data.latitude}</li>`;
+                    ul+=`<li>Longitude : ${data.longitude}</li>`;
+                    ul+=`<li>Elevation : ${data.elevation}</li>`;
+                    ul+=`<li>Timezone : ${data.timezone}</li>`;
+                    ul+=`<li>Timezone Abbreviation : ${data.timezone_abbreviation}</li>`;
+                    ul+=`<li>UTC Offset Seconds : ${data.utc_offset_seconds}</li>`;
+                    ul+=`<li>Generation Time ms : ${data.generationtime_ms}</li>`;
+                    ul+='<ul>';
+                    const hourly = data.hourly;
+                    const temperature = hourly.temperature_2m;
+                    const time = hourly.time;
+                    ul+='<li>Time --------------- Temperature</li><br>'
+                    time.forEach((time,index) => {
+                        var temp = temperature[index];
+                        ul+=`<li>${time} --- ${temp}°C</li>`;
+                    });
+                    ul+='</ul>';
+                    ul+='</ol>';
+                    document.getElementById("display").innerHTML = "<h2>Weather Forecast (2m)</h2>"+ul;
+            })
+            .catch(err => {
+                console.error(err);
+            });
+        }
+    </script>
+</body>
+</html>
