@@ -43,7 +43,16 @@ export default function ReadSong() {
     setFilteredSongs(filtered);
   };
   
-  
+const handleDelete = (id) => {
+  axios.delete('http://localhost:3001/deleteSong/' + id)
+    .then(res => {
+      console.log(res);
+      // Remove the deleted song from the filteredSongs array
+      setFilteredSongs(filteredSongs.filter(song => song._id !== id));
+    })
+    .catch(err => console.error(err));
+}
+
 
   return (
     <div className="container">
@@ -141,7 +150,8 @@ export default function ReadSong() {
                   <Link to={`/update/${song._id}`}>
                     <button className="btn btn-primary mr-1">Edit</button>
                   </Link>
-                  <button className="btn btn-danger">Delete</button>
+
+                  <button className="btn btn-danger" onClick={(e) => handleDelete(song._id)}>Delete</button>
                 </td>
               </tr>
             ))}

@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://madhav3jadhav:<password>@cluster0.s63txrq.mongodb.net/<database_name>');
+mongoose.connect('mongodb+srv://madhav3jadhav:<password99>@cluster0.s63txrq.mongodb.net/<database>');
 
 app.post('/addSong',(req,res)=>{
     SongModel.create(req.body)
