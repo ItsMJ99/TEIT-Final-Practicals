@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +22,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="mt-4 mb-4">Register User</h1>
@@ -50,16 +52,19 @@
                         <input type="email" class="form-control" id="email" placeholder="Email" />
                     </div>
                     <div class="form-group">
-                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" />
+                        <input type="password" class="form-control" id="confirmPassword"
+                            placeholder="Confirm Password" />
                     </div>
                     <div class="form-group">
                         <input type="radio" name="gender" class="form-check-input ml-2" value="Male" id="male-radio" />
                         <label for="male-radio" class="ml-4">Male</label>
 
-                        <input type="radio" name="gender" class="form-check-input ml-2" value="Female" id="female-radio" />
+                        <input type="radio" name="gender" class="form-check-input ml-2" value="Female"
+                            id="female-radio" />
                         <label for="female-radio" class="ml-4">Female</label>
 
-                        <input type="radio" name="gender" class="form-check-input ml-2" value="Other" id="other-radio" />
+                        <input type="radio" name="gender" class="form-check-input ml-2" value="Other"
+                            id="other-radio" />
                         <label for="other-radio" class="ml-4">Other</label>
                     </div>
                     <button type="submit" class="btn btn-success mt-2">Submit</button>
@@ -70,42 +75,43 @@
 
     <script src="./jquery-3.7.1.min.js"></script>
     <script>
-const submitData = (e) => {
-    e.preventDefault();
-    
-    var fname = document.getElementById('fname').value;
-    var lname = document.getElementById('lname').value;
-    var uname = document.getElementById('uname').value;
-    var email = document.getElementById('email').value;
-    var password = document.getElementById('password').value;
-    var confirmPassword = document.getElementById('confirmPassword').value;
-    var dob = document.getElementById('dob').value;
-    var gender = document.querySelector('input[name="gender"]:checked').value;
-    if(password.trim() != confirmPassword.trim()) {
-        alert('Passwords are not matching');
-        return;
-    }
-    if(fname.trim() === '' || lname.trim() === '' || uname.trim() === '' || email.trim() === '' || password.trim() === '' || confirmPassword.trim() === '' || dob.trim() === '' || gender.trim() === ''){
-        alert('Please Fill all the input fields');
-        return;
-    }
-    const user = {
-        fname,
-        lname,
-        uname,
-        email,
-        password,
-        confirmPassword, 
-        dob,
-        gender,
-    }
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    users.push(user);
-    localStorage.setItem('users', JSON.stringify(users));
-    window.location.href = './Problem_Statement_W-3-4-5_push_and_display_AJAX_Response.html';
-}
+        const submitData = (e) => {
+            e.preventDefault();
+
+            var fname = document.getElementById('fname').value;
+            var lname = document.getElementById('lname').value;
+            var uname = document.getElementById('uname').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+            var dob = document.getElementById('dob').value;
+            var gender = document.querySelector('input[name="gender"]:checked').value;
+            if (password.trim() != confirmPassword.trim()) {
+                alert('Passwords are not matching');
+                return;
+            }
+            if (fname.trim() === '' || lname.trim() === '' || uname.trim() === '' || email.trim() === '' || password.trim() === '' || confirmPassword.trim() === '' || dob.trim() === '' || gender.trim() === '') {
+                alert('Please Fill all the input fields');
+                return;
+            }
+            const user = {
+                fname,
+                lname,
+                uname,
+                email,
+                password,
+                confirmPassword,
+                dob,
+                gender,
+            }
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            users.push(user);
+            localStorage.setItem('users', JSON.stringify(users));
+            window.location.href = './response.html';
+        }
 
 
     </script>
 </body>
+
 </html>
