@@ -125,6 +125,7 @@ const handleDelete = (id) => {
         <Link to="/add">
           <button className="btn btn-success mt-3 mb-3">Add +</button>
         </Link>
+        <h5 className='mt-4 ml-4'>Total Records Found : {filteredSongs.length}</h5>
         <table className="table">
           <thead>
             <tr>

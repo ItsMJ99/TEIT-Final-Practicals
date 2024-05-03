@@ -1,0 +1,40 @@
+th {
+  background-color: black;
+  color: white;
+}
+
+td {
+  max-width: 150px;
+  word-wrap: break-word;
+}
+
+.filter-form {
+  display: flex;
+}
+
+.add-song-form {
+  border: 1px solid black;
+  padding: 2rem;
+  border-radius: 15px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.edit-btn {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 2px;
+}
+
+.delete-btn {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.cust-align {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
