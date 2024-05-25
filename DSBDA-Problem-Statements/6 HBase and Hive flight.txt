@@ -1,0 +1,195 @@
+hbase(main):021:0> create 'flight','finfo','fschedule','fdelay'
+0 row(s) in 1.2360 seconds
+
+=> Hbase::Table - flight
+hbase(main):022:0> list
+TABLE                                                                                                                 
+flight                                                                                                                
+1 row(s) in 0.0050 seconds
+
+=> ["flight"]
+hbase(main):023:0> put 'flight','1','finfo:fno','740'
+0 row(s) in 0.0160 seconds
+
+hbase(main):024:0> put 'flight','1','finfo:fpassengers','127'
+0 row(s) in 0.0030 seconds
+
+hbase(main):025:0> put 'flight','1','fschedule:fday','Sunday'
+0 row(s) in 0.0200 seconds
+
+hbase(main):026:0> put 'flight','1','fschedule:fdate','12/05/2024'
+0 row(s) in 0.0130 seconds
+
+hbase(main):027:0> put 'flight','1','fschedule:ffrom','Pune'
+0 row(s) in 0.0050 seconds
+
+hbase(main):028:0> put 'flight','1','fschedule:fto','Delhi'
+0 row(s) in 0.0050 seconds
+
+hbase(main):029:0> put 'flight','1','fdelay:totaldelay','1hour'
+0 row(s) in 0.0110 seconds
+
+hbase(main):030:0> put 'flight','1','fschedule:fdeparture','7.30am'
+0 row(s) in 0.0080 seconds
+
+hbase(main):031:0> put 'flight','1','fschedule:farrival','11.30am'
+0 row(s) in 0.0040 seconds
+
+hbase(main):032:0> get 'flight','1'
+COLUMN                         CELL                                                                                   
+ fdelay:totaldelay             timestamp=1715277177166, value=1hour                                                   
+ finfo:fno                     timestamp=1715276886494, value=740                                                     
+ finfo:fpassengers             timestamp=1715276902572, value=127                                                     
+ fschedule:farrival            timestamp=1715277197519, value=11.30am                                                 
+ fschedule:fdate               timestamp=1715277094964, value=12/05/2024                                              
+ fschedule:fday                timestamp=1715277057538, value=Sunday                                                  
+ fschedule:fdeparture          timestamp=1715277189158, value=7.30am                                                  
+ fschedule:ffrom               timestamp=1715277105674, value=Pune                                                    
+ fschedule:fto                 timestamp=1715277115585, value=Delhi                                                   
+9 row(s) in 0.0100 seconds
+
+hbase(main):033:0> scan 'flight'
+ROW                            COLUMN+CELL                                                                            
+ 1                             column=fdelay:totaldelay, timestamp=1715277177166, value=1hour                         
+ 1                             column=finfo:fno, timestamp=1715276886494, value=740                                   
+ 1                             column=finfo:fpassengers, timestamp=1715276902572, value=127                           
+ 1                             column=fschedule:farrival, timestamp=1715277197519, value=11.30am                      
+ 1                             column=fschedule:fdate, timestamp=1715277094964, value=12/05/2024                      
+ 1                             column=fschedule:fday, timestamp=1715277057538, value=Sunday                           
+ 1                             column=fschedule:fdeparture, timestamp=1715277189158, value=7.30am                     
+ 1                             column=fschedule:ffrom, timestamp=1715277105674, value=Pune                            
+ 1                             column=fschedule:fto, timestamp=1715277115585, value=Delhi                             
+1 row(s) in 0.0860 seconds
+
+hbase(main):034:0> alter 'flight','fpassengers_info'
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.0890 seconds
+
+hbase(main):035:0> describe 'flight'
+Table flight is ENABLED                                                                                               
+flight                                                                                                                
+COLUMN FAMILIES DESCRIPTION                                                                                           
+{NAME => 'fdelay', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0', VERSIONS => '1', COM
+PRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS => 'FALSE', BLOCKSIZE => '65536', IN_MEM
+ORY => 'false', BLOCKCACHE => 'true'}                                                                                 
+{NAME => 'finfo', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0', VERSIONS => '1', COMP
+RESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS => 'FALSE', BLOCKSIZE => '65536', IN_MEMO
+RY => 'false', BLOCKCACHE => 'true'}                                                                                  
+{NAME => 'fpassengers_info', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0', COMPRESSIO
+N => 'NONE', VERSIONS => '1', TTL => 'FOREVER', MIN_VERSIONS => '0', KEEP_DELETED_CELLS => 'FALSE', BLOCKSIZE => '6553
+6', IN_MEMORY => 'false', BLOCKCACHE => 'true'}                                                                       
+{NAME => 'fschedule', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0', VERSIONS => '1', 
+COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS => 'FALSE', BLOCKSIZE => '65536', IN_
+MEMORY => 'false', BLOCKCACHE => 'true'}                                                                              
+4 row(s) in 0.0680 seconds
+
+
+
+HIVE
+    > create external table flight_hbase(key string,fdelay int,fno int,fpassengers int,farrival string,fdeparture string,fdate date,fday string,ffrom string,fto string)
+    > STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+    > with serdeproperties ('hbase.columns.mapping'=':key,fdelay:totaldelay,finfo:fno,finfo:fpassengers,fschedule:farrival,fschedule:fdeparture,fschedule:fdate,fschedule:fday,fschedule:ffrom,fschedule:fto')
+    > TBLPROPERTIES('hbase.table.name'='flight');
+OK
+Time taken: 3.012 seconds
+hive> select * from flight_hbase
+    > ;
+OK
+1	1	740	127	11.30am	7.30am	NULL	Sunday	Pune	Delhi
+2	5	747	223	17.30pm	12.30pm	NULL	Friday	NULL	NULL
+3	4	277	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+
+
+hive> select sum(fdelay) from flight_hbase;
+Query ID = cloudera_20240509125454_5285aa60-9b7b-4996-b50f-71f4e7790e69
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1715258731217_0005, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1715258731217_0005/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1715258731217_0005
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2024-05-09 12:54:55,407 Stage-1 map = 0%,  reduce = 0%
+2024-05-09 12:55:06,306 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 2.51 sec
+2024-05-09 12:55:16,431 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 3.66 sec
+MapReduce Total cumulative CPU time: 3 seconds 660 msec
+Ended Job = job_1715258731217_0005
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 3.66 sec   HDFS Read: 9025 HDFS Write: 3 SUCCESS
+Total MapReduce CPU Time Spent: 3 seconds 660 msec
+OK
+10
+
+
+hive> select avg(fdelay) from flight_hbase;
+Query ID = cloudera_20240509125656_20dc4f8f-c3c9-44ad-ac21-a094c83cf5a9
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1715258731217_0006, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1715258731217_0006/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1715258731217_0006
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2024-05-09 12:56:37,918 Stage-1 map = 0%,  reduce = 0%
+2024-05-09 12:56:48,918 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 1.99 sec
+2024-05-09 12:57:00,267 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 3.34 sec
+MapReduce Total cumulative CPU time: 3 seconds 340 msec
+Ended Job = job_1715258731217_0006
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 3.34 sec   HDFS Read: 16844 HDFS Write: 19 SUCCESS
+Total MapReduce CPU Time Spent: 3 seconds 340 msec
+OK
+3.3333333333333335
+Time taken: 41.58 seconds, Fetched: 1 row(s)
+
+hive> insert into flight_hbase (key,fno,fpassengers,farrival,fdeparture,fdate,fday,ffrom,fto) values('6',444,452,'19.00pm','12.00pm','2024-05-15','Thursday','Mumbai','Pune');
+Query ID = cloudera_20240509130303_8dda5cec-51e6-452c-a482-e45f18c957e3
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1715258731217_0008, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1715258731217_0008/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1715258731217_0008
+Hadoop job information for Stage-0: number of mappers: 1; number of reducers: 0
+2024-05-09 13:03:48,261 Stage-0 map = 0%,  reduce = 0%
+2024-05-09 13:03:57,979 Stage-0 map = 100%,  reduce = 0%, Cumulative CPU 2.13 sec
+MapReduce Total cumulative CPU time: 2 seconds 130 msec
+Ended Job = job_1715258731217_0008
+MapReduce Jobs Launched: 
+Stage-Stage-0: Map: 1   Cumulative CPU: 2.13 sec   HDFS Read: 13356 HDFS Write: 0 SUCCESS
+Total MapReduce CPU Time Spent: 2 seconds 130 msec
+OK
+Time taken: 23.409 seconds
+hive> select * from flight_hbase;
+OK
+1	1	740	127	11.30am	7.30am	NULL	Sunday	Pune	Delhi
+2	5	747	223	17.30pm	12.30pm	NULL	Friday	NULL	NULL
+3	4	277	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+4	NULL	999	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+6	NULL	444	452	19.00pm	12.00pm	2024-05-15	Thursday	Mumbai	Pune
+Time taken: 0.17 seconds, Fetched: 5 row(s)
+
+
+    > create index delay_index on table flight_hbase(fdelay,fno) as 
+    > 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+    > with deferred rebuild;
+OK
+Time taken: 0.489 seconds
+hive> show index on flight_hbase
+    > ;
+OK
+delay_index         	flight_hbase        	fdelay, fno         	default__flight_hbase_delay_index__	compact             	
+Time taken: 0.099 seconds, Fetched: 1 row(s)
+

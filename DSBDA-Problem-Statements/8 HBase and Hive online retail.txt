@@ -1,0 +1,100 @@
+    > create table online_retail (invoice_id int,stock_id string,description string,quantity int,price double,cust_id int,country string)
+    > row format delimited
+    > fields terminated by ','
+    > stored as textfile;
+
+
+
+   > LOAD DATA LOCAL INPATH '/home/cloudera/Desktop/Windows_Shared/onlineRetail.csv' INTO TABLE online_retail;
+Loading data to table default.online_retail
+Table default.online_retail stats: [numFiles=1, totalSize=513]
+OK
+Time taken: 0.898 seconds
+
+
+hive> select * from online_retail;
+OK
+536365	A452	Abracadabra Bag	5	2.99	17850	United Kingdom
+536366	B123	Bubblegum Bracelet	3	1.5	17851	United Kingdom
+536367	C789	Crystal Crown	1	9.99	17852	France
+536368	D987	Dragon Earrings	2	4.75	17853	Germany
+536369	E654	Enchanted Necklace	1	12.99	17854	France
+536370	F321	Fairy Dust Powder	4	3.25	17855	Germany
+536371	G111	Golden Ring	2	15.5	17856	United Kingdom
+536372	H222	Harmony Pendant	1	8.49	17857	France
+536373	I333	Infinity Bangle	3	6.75	17858	United Kingdom
+536374	J444	Jewel Box	1	18.99	17859	Germany
+Time taken: 0.104 seconds, Fetched: 10 row(s)
+hive> 
+    > create index temp_index on table online_retail(invoice_id)
+    > as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+    > with deferred rebuild;
+OK
+Time taken: 0.318 seconds
+hive> show index on online_retail;
+OK
+temp_index          	online_retail       	invoice_id          	default__online_retail_temp_index__	compact             	
+Time taken: 0.073 seconds, Fetched: 1 row(s)
+
+hive> select avg(quantity * price) from online_retail;
+OK
+14.366
+Time taken: 36.661 seconds, Fetched: 1 row(s)
+
+select sum(quantity * price) from online_retail;
+OK
+143.66
+Time taken: 30.674 seconds, Fetched: 1 row(s)
+
+
+select cust_id,sum(quantity*price) as max_price from online_retail group by cust_id order by max_price DESC limit 1;
+
+OK
+17856	31.0
+Time taken: 70.596 seconds, Fetched: 1 row(s)
+
+
+  > select * from online_retail order by (price*quantity) DESC limit 1;
+OK
+536371	G111	Golden Ring	2	15.5	17856	United Kingdom
+Time taken: 34.711 seconds, Fetched: 1 row(s)
+
+hive> select country,sum(price*quantity) as total_sales from online_retail group by country order by total_sales DESC limit 1;
+
+OK
+United Kingdom	70.7
+Time taken: 64.846 seconds, Fetched: 1 row(s)
+
+
+hbase(main):001:0> create 'online_retail','orders'
+0 row(s) in 1.5930 seconds
+
+
+hive> create external table orders_hbase(key string,order_id int,cust_name string,item_id int,price double,country string)
+    > stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+    > with serdeproperties ('hbase.columns.mapping'=':key,orders:order_id,orders:cust_name,orders:item_id,orders:price,orders:country')
+    > tblproperties ('hbase.table.name'='online_retail');
+OK
+Time taken: 1.023 seconds
+
+    > insert into table orders_hbase values ('1',1000,'john wick',200,20000,'India'),('2',2001,'jenny ortega',230,12300,'Japan')
+    > ;
+
+
+=> Hbase::Table - online_retail
+hbase(main):002:0> scan 'online_retail'
+ROW                                      COLUMN+CELL                                                                                                         
+ 1                                       column=orders:country, timestamp=1715325590416, value=India                                                         
+ 1                                       column=orders:cust_name, timestamp=1715325590416, value=john wick                                                   
+ 1                                       column=orders:item_id, timestamp=1715325590416, value=200                                                           
+ 1                                       column=orders:order_id, timestamp=1715325590416, value=1000                                                         
+ 1                                       column=orders:price, timestamp=1715325590416, value=20000.0                                                         
+ 2                                       column=orders:country, timestamp=1715325590416, value=Japan                                                         
+ 2                                       column=orders:cust_name, timestamp=1715325590416, value=jenny ortega                                                
+ 2                                       column=orders:item_id, timestamp=1715325590416, value=230                                                           
+ 2                                       column=orders:order_id, timestamp=1715325590416, value=2001                                                         
+ 2                                       column=orders:price, timestamp=1715325590416, value=12300.0                                                         
+2 row(s) in 0.3920 seconds
+
+
+

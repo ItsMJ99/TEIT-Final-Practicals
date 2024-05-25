@@ -1,0 +1,163 @@
+    > create table customer_info(cust_id int,cust_name string,orderID int)
+    > ROW FORMAT DELIMITED
+    > FIELDS TERMINATED BY ','
+    > STORED AS TEXTFILE;
+OK
+Time taken: 0.356 seconds
+hive> create table order_info(orderID int, ItemID int,Quantity int)
+    > row format  delimited
+    > fields terminated by ','
+    > stored as textfile;
+OK
+Time taken: 0.24 seconds
+hive> create table item_info(ItemID int, Item_Name string,ItemPrice double)
+    > row format  delimited
+    > fields terminated by ','
+    > stored as textfile;
+OK
+Time taken: 0.159 seconds
+hive> show tables;
+OK
+customer_info
+default__flight_hbase_delay_index__
+flight_hbase
+item_info
+order_info
+Time taken: 0.032 seconds, Fetched: 5 row(s)
+
+
+ru root
+
+mount -t vboxsf windows_folder_name_in_vbox path_of_cloudera_folder_toconnect
+
+
+hive> LOAD DATA LOCAL INPATH '/home/cloudera/Desktop/Windows_Shared/order_info.csv' INTO TABLE order_info;
+Loading data to table default.order_info
+Table default.order_info stats: [numFiles=1, totalSize=104]
+OK
+Time taken: 0.46 seconds
+hive> truncate table customer_info;
+OK
+Time taken: 0.165 seconds
+hive> LOAD DATA LOCAL INPATH '/home/cloudera/Desktop/Windows_Shared/customer_info.csv' INTO TABLE customer_info;
+Loading data to table default.customer_info
+Table default.customer_info stats: [numFiles=1, numRows=0, totalSize=219, rawDataSize=0]
+OK
+Time taken: 0.536 seconds
+hive> LOAD DATA LOCAL INPATH '/home/cloudera/Desktop/Windows_Shared/item_info.csv' INTO TABLE item_info;
+Loading data to table default.item_info
+Table default.item_info stats: [numFiles=1, totalSize=157]
+OK
+Time taken: 0.534 seconds
+
+
+
+hive> select * from customer_info
+    > join order_info on customer_info.orderID=order_info.orderID
+    > join item_info on order_info.itemID=item_info.itemID;
+
+
+MapReduce Jobs Launched: 
+Stage-Stage-5: Map: 1   Cumulative CPU: 1.54 sec   HDFS Read: 9028 HDFS Write: 424 SUCCESS
+Total MapReduce CPU Time Spent: 1 seconds 540 msec
+OK
+1	John Doe	101	101	1	2	1	Shirt	2099.0
+2	Jane Smith	102	102	2	3	2	Pants	2999.0
+3	Michael Johnson	103	103	3	1	3	Shoes	3999.0
+4	Emily Brown	104	104	1	5	1	Shirt	2099.0
+5	Christopher Lee	105	105	2	2	2	Pants	2999.0
+6	Sarah Wilson	106	106	3	4	3	Shoes	3999.0
+7	David Taylor	107	107	1	3	1	Shirt	2099.0
+8	Amanda Clark	108	108	2	1	2	Pants	2999.0
+9	Matthew White	109	109	3	2	3	Shoes	3999.0
+10	Olivia Martinez	110	110	1	4	1	Shirt	2099.0
+Time taken: 39.514 seconds, Fetched: 10 row(s)
+
+
+Stage-Stage-5: Map: 1   Cumulative CPU: 1.54 sec   HDFS Read: 9028 HDFS Write: 424 SUCCESS
+Total MapReduce CPU Time Spent: 1 seconds 540 msec
+OK
+1	John Doe	101	101	1	2	1	Shirt	2099.0
+2	Jane Smith	102	102	2	3	2	Pants	2999.0
+3	Michael Johnson	103	103	3	1	3	Shoes	3999.0
+4	Emily Brown	104	104	1	5	1	Shirt	2099.0
+5	Christopher Lee	105	105	2	2	2	Pants	2999.0
+6	Sarah Wilson	106	106	3	4	3	Shoes	3999.0
+7	David Taylor	107	107	1	3	1	Shirt	2099.0
+8	Amanda Clark	108	108	2	1	2	Pants	2999.0
+9	Matthew White	109	109	3	2	3	Shoes	3999.0
+10	Olivia Martinez	110	110	1	4	1	Shirt	2099.0
+Time taken: 39.514 seconds, Fetched: 10 row(s)
+hive> create index demo_index
+    > on table customer_info(cust_id)
+    > as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+    > with deferred rebuild;
+OK
+Time taken: 0.717 seconds
+hive> show index on customer_info;
+OK
+demo_index          	customer_info       	cust_id             	default__customer_info_demo_index__	compact             	
+Time taken: 0.187 seconds, Fetched: 1 row(s)
+
+
+
+
+select sum(ItemPrice * Quantity) as total_sales, avg(ItemPrice * Quantity) as avg_sales from order_info
+    > join item_info on order_info.ItemID=item_info.ItemID;
+
+
+
+Total MapReduce CPU Time Spent: 3 seconds 300 msec
+OK
+75373.0	7537.3
+Time taken: 42.898 seconds, Fetched: 1 row(s)
+
+
+ select orderID, sum(item_info.ItemPrice * order_info.Quantity) as total_price
+    > from order_info
+    > join item_info on order_info.ItemID=item_info.ItemID
+    > group by order_info.orderID
+    > order by total_price DESC
+    > limit 1;
+
+
+
+Total MapReduce CPU Time Spent: 5 seconds 80 msec
+OK
+106	15996.0
+Time taken: 69.732 seconds, Fetched: 1 row(s)
+
+
+hbase(main):006:0> create 'customer_info','customer'
+0 row(s) in 1.2410 seconds
+
+
+   > create external table customer_hbase(key string,cust_id int,cust_name string,order_id int)
+    > stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+    > with serdeproperties ('hbase.columns.mapping'=':key,customer:id,customer:name,customer:order_id')
+    > tblproperties ('hbase.table.name'='customer_info');
+OK
+
+
+
+insert into table customer_hbase values (1,100,'john wick',2001),(2,200,'xyz',2002),(3,300,'abc',3000);
+
+
+OK
+Time taken: 29.436 seconds
+
+
+hbase(main):008:0> scan 'customer_info'
+ROW                                      COLUMN+CELL                                                                                                         
+ 1                                       column=customer:id, timestamp=1715321681955, value=100                                                              
+ 1                                       column=customer:name, timestamp=1715321681955, value=john wick                                                      
+ 1                                       column=customer:order_id, timestamp=1715321681955, value=2001                                                       
+ 2                                       column=customer:id, timestamp=1715321681955, value=200                                                              
+ 2                                       column=customer:name, timestamp=1715321681955, value=xyz                                                            
+ 2                                       column=customer:order_id, timestamp=1715321681955, value=2002                                                       
+ 3                                       column=customer:id, timestamp=1715321681955, value=300                                                              
+ 3                                       column=customer:name, timestamp=1715321681955, value=abc                                                            
+ 3                                       column=customer:order_id, timestamp=1715321681955, value=3000                                                       
+3 row(s) in 0.0660 seconds
+
+
