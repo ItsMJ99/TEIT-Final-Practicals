@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://itsmj99:studentmanagement99@cluster0.wekinhp.mongodb.net/student');
+mongoose.connect('mongodb url');
 
 app.get('/',(req,res)=>{
     StudentModel.find({})
